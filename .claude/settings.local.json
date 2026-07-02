@@ -47,10 +47,7 @@
       "Bash(sudo mkdir -p /Users/swapnil/.config/gh)",
       "Bash(sudo chown swapnil:staff /Users/swapnil/.config/gh)",
       "Bash(git stash *)",
-      "Bash(git rebase *)",
-      "Bash(git checkout *)",
-      "Bash(git add *)",
-      "Bash(GIT_EDITOR=true git rebase --continue)"
+      "Bash(git rebase *)"
     ]
   }
 }
