@@ -454,3 +454,117 @@ button.link {
   color: var(--text-muted);
   margin-top: 0.5rem;
 }
+
+/* Landing Page */
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px 40px;
+  max-width: 640px;
+}
+
+.landing-hero h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 24px 0 12px;
+}
+
+.landing-tagline {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.landing-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.landing-download:hover {
+  background: var(--accent-hover);
+}
+
+.landing-other {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.landing-other a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.landing-other a:hover {
+  text-decoration: underline;
+}
+
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  max-width: 720px;
+  padding: 40px 24px 80px;
+  width: 100%;
+}
+
+.landing-feature {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.landing-feature h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.landing-feature p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.landing-badge {
+  display: inline-block;
+  background: #1a3a1a;
+  color: var(--success);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.landing-footer {
+  padding: 24px;
+  color: #555;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.landing-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}

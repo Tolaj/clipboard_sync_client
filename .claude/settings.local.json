@@ -52,7 +52,14 @@
       "mcp__visualize__read_me",
       "mcp__visualize__show_widget",
       "Bash(bash bundle_dmg.sh)",
-      "Bash(brew install *)"
+      "Bash(brew install *)",
+      "Bash(npm run *)",
+      "Bash(npx vite *)",
+      "Bash(lsof -ti:1420)",
+      "Bash(xargs kill -9)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(mkdir -p /Users/swapnil/Documents/Projects/clipboard_sync_client/.claude)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }

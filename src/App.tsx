@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { load } from "@tauri-apps/plugin-store";
-import { invoke } from "@tauri-apps/api/core";
 import PairingScreen from "./components/PairingScreen";
 import ClipboardHistory from "./components/ClipboardHistory";
 import DeviceList from "./components/DeviceList";
 import Settings from "./components/Settings";
 import AppLogo from "./components/AppLogo";
+import LandingPage from "./components/LandingPage";
+
+const isTauri = !!(window as any).__TAURI_INTERNALS__;
 
 type Tab = "history" | "devices" | "settings";
 
@@ -15,11 +16,13 @@ function App() {
   const [pairingCode, setPairingCode] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isTauri) return;
     checkAuth();
   }, []);
 
   async function checkAuth() {
     try {
+      const { load } = await import("@tauri-apps/plugin-store");
       const store = await load("settings.json", { defaults: {}, autoSave: true });
       const token = await store.get<string>("deviceToken");
       const serverUrl = await store.get<string>("serverUrl");
@@ -36,6 +39,7 @@ function App() {
 
   async function startSync(serverUrl: string, token: string) {
     try {
+      const { invoke } = await import("@tauri-apps/api/core");
       await invoke("start_clipboard_sync", {
         serverUrl,
         deviceToken: token,
@@ -47,6 +51,7 @@ function App() {
   }
 
   async function handlePaired(code: string | null) {
+    const { load } = await import("@tauri-apps/plugin-store");
     const store = await load("settings.json", { defaults: {}, autoSave: true });
     const token = await store.get<string>("deviceToken");
     const serverUrl = await store.get<string>("serverUrl");
@@ -55,6 +60,10 @@ function App() {
     }
     setPairingCode(code);
     setAuthenticated(true);
+  }
+
+  if (!isTauri) {
+    return <LandingPage />;
   }
 
   if (authenticated === null) {
