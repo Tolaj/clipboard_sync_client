@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicepage/nicepage-go/refs/heads/main/nicepage/data/tauri.conf.schema.json",
   "productName": "Clipboard Sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "identifier": "com.clipboardsync.desktop",
   "build": {
     "frontendDist": "../dist",
