@@ -1,222 +1,134 @@
-# Clipboard Sync — Desktop & Mobile App
+# Clipboard Sync
 
-Cross-device clipboard sharing app built with [Tauri v2](https://v2.tauri.app/) and React. Copy on any device, paste on any other — seamlessly.
+Copy on one device, paste on another. End-to-end encrypted clipboard sync across macOS, Windows, and Linux.
 
-Works on **macOS, Windows, Linux, Android, and iOS** from a single codebase.
+Built with [Tauri v2](https://v2.tauri.app/), React, and Rust.
 
-## How It Works
+## Download
 
-1. Launch the app on your first device → creates a sync group with a 6-character pairing code
-2. Enter the code on your other devices → they join the group
-3. Copy anything → it appears on all your devices within 2 seconds
+Get the latest release for your platform:
 
-The app runs a background process that monitors your clipboard and syncs changes through the [Clipboard Sync Server](https://github.com/YOUR_USERNAME/clipboard-sync-server).
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | [Clipboard.Sync_1.0.0_aarch64.dmg](https://github.com/Tolaj/clipboard_sync_client/releases/download/v1.0.0/Clipboard.Sync_1.0.0_aarch64.dmg) |
+| macOS (Intel) | [Clipboard.Sync_1.0.0_x64.dmg](https://github.com/Tolaj/clipboard_sync_client/releases/download/v1.0.0/Clipboard.Sync_1.0.0_x64.dmg) |
+| Windows | [Clipboard.Sync_1.0.0_x64-setup.exe](https://github.com/Tolaj/clipboard_sync_client/releases/download/v1.0.0/Clipboard.Sync_1.0.0_x64-setup.exe) |
+| Linux (Debian/Ubuntu) | [Clipboard.Sync_1.0.0_amd64.deb](https://github.com/Tolaj/clipboard_sync_client/releases/download/v1.0.0/Clipboard.Sync_1.0.0_amd64.deb) |
+| Linux (AppImage) | [Clipboard.Sync_1.0.0_amd64.AppImage](https://github.com/Tolaj/clipboard_sync_client/releases/download/v1.0.0/Clipboard.Sync_1.0.0_amd64.AppImage) |
 
-## Features
+[All releases](https://github.com/Tolaj/clipboard_sync_client/releases)
 
-- Automatic clipboard sync across all paired devices
-- 6-character pairing codes (no accounts needed)
-- Clipboard history
-- System tray / menu bar integration
-- Dark theme UI
-- 18MB native binary (no Electron bloat)
-
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) v18+
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable)
-- Platform-specific dependencies (see below)
-- A running [Clipboard Sync Server](https://github.com/YOUR_USERNAME/clipboard-sync-server)
-
-### Install Rust
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-After installation, restart your terminal or run:
-
-```bash
-source "$HOME/.cargo/env"
-```
+## Install
 
 ### macOS
 
-Xcode Command Line Tools (you likely already have these):
-
-```bash
-xcode-select --install
-```
+1. Download the `.dmg` for your Mac (Apple Silicon or Intel)
+2. Open the DMG and drag **Clipboard Sync** to **Applications**
+3. The app is not code-signed yet, so macOS will block it. Run this once:
+   ```bash
+   xattr -cr /Applications/Clipboard\ Sync.app
+   ```
+4. Open Clipboard Sync from Applications
 
 ### Windows
 
-- [Microsoft Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-- [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) (pre-installed on Windows 10/11)
+1. Download the `.exe` installer
+2. Run the installer — Windows SmartScreen may show a warning
+3. Click **More info** → **Run anyway**
+4. Follow the install wizard
 
 ### Linux
 
+**Debian/Ubuntu:**
 ```bash
-# Debian/Ubuntu
+sudo dpkg -i Clipboard.Sync_1.0.0_amd64.deb
+```
+
+**AppImage:**
+```bash
+chmod +x Clipboard.Sync_1.0.0_amd64.AppImage
+./Clipboard.Sync_1.0.0_amd64.AppImage
+```
+
+## Features
+
+- **Universal clipboard** — copy text, code, URLs, and images across devices
+- **End-to-end encryption** — AES-256-GCM, encrypted before it leaves your device
+- **Clipboard history** — access your last 20 clips
+- **Instant pairing** — share a code, no account needed
+- **Cross-platform** — native apps for macOS, Windows, and Linux
+- **Lightweight** — under 10MB, built with Tauri and Rust
+
+## How it works
+
+1. Open the app → click **Create Group**
+2. Share the pairing code with your other devices
+3. Enter the code on those devices → clipboard syncing starts instantly
+
+The pairing code includes your encryption key. The server only ever sees encrypted data.
+
+## Security
+
+All clipboard data is encrypted with **AES-256-GCM** on your device before transmission. The encryption key is generated locally and embedded in the pairing code — it never touches the server. The server is a zero-knowledge relay that stores only encrypted blobs.
+
+## Build from source
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+
+- [Rust](https://www.rust-lang.org/tools/install) (latest stable)
+
+```bash
+# Install Rust (if needed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Linux only — install system dependencies
 sudo apt install libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-# Fedora
-sudo dnf install webkit2gtk4.1-devel libappindicator-gtk3-devel librsvg2-devel
-
-# Arch
-sudo pacman -S webkit2gtk-4.1 libappindicator-gtk3 librsvg
 ```
 
-## Setup
-
-### 1. Clone the repo
+### Build
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/clipboard-sync.git
-cd clipboard-sync
-```
-
-### 2. Install dependencies
-
-```bash
+git clone https://github.com/Tolaj/clipboard_sync_client.git
+cd clipboard_sync_client
 npm install
+npm run dev        # development mode
+npm run build      # production build
 ```
 
-### 3. Start the server
-
-You need the [Clipboard Sync Server](https://github.com/YOUR_USERNAME/clipboard-sync-server) running. Follow its README to set it up, then:
-
-```bash
-cd clipboard-sync-server
-npm run dev
-# Server runs at http://localhost:3000
-```
-
-### 4. Run the app in development mode
-
-```bash
-cd clipboard-sync
-npm run dev
-```
-
-This will:
-- Start the Vite dev server (hot reload for the React UI)
-- Compile and launch the Tauri app
-
-The first build takes a few minutes (compiling Rust dependencies). Subsequent builds are fast.
-
-### 5. Pair your devices
-
-1. The app opens to the pairing screen
-2. Set the **Server URL** to your server (e.g., `http://localhost:3000` or your Vercel URL)
-3. Enter a **Device Name** (e.g., "My MacBook")
-4. Click **Create New Group**
-5. You'll see a 6-character code — enter this on your other devices
-
-## Build for Production
-
-```bash
-npm run build
-```
-
-The built app is at:
-- **macOS:** `src-tauri/target/release/bundle/dmg/`
-- **Windows:** `src-tauri/target/release/bundle/msi/`
-- **Linux:** `src-tauri/target/release/bundle/deb/` or `appimage/`
-
-## Build for Mobile
-
-### Android
-
-```bash
-# Add Android target
-rustup target add aarch64-linux-android
-
-# Initialize Android project
-npx tauri android init
-
-# Run on connected device
-npx tauri android dev
-
-# Build APK
-npx tauri android build
-```
-
-### iOS
-
-```bash
-# Add iOS target
-rustup target add aarch64-apple-ios
-
-# Initialize iOS project
-npx tauri ios init
-
-# Run on simulator
-npx tauri ios dev
-
-# Build
-npx tauri ios build
-```
-
-## Project Structure
+## Project structure
 
 ```
-clipboard-sync/
-├── src/                          # React frontend
+clipboard_sync_client/
+├── src/                        # React frontend
 │   ├── components/
-│   │   ├── PairingScreen.tsx     # Create / join sync group
-│   │   ├── ClipboardHistory.tsx  # Synced clip history
-│   │   ├── DeviceList.tsx        # Paired devices
-│   │   └── Settings.tsx          # App settings
+│   │   ├── PairingScreen.tsx   # Create / join sync group
+│   │   ├── ClipboardHistory.tsx
+│   │   ├── DeviceList.tsx
+│   │   ├── Settings.tsx
+│   │   └── LandingPage.tsx     # Browser landing page
 │   ├── lib/
-│   │   ├── api.ts                # HTTP client for server
-│   │   └── storage.ts            # Persistent storage wrapper
-│   ├── styles/
-│   │   └── global.css            # Dark theme styles
-│   ├── App.tsx                   # Root component
-│   └── main.tsx                  # Entry point
-├── src-tauri/                    # Rust backend
+│   │   ├── api.ts              # HTTP client
+│   │   └── storage.ts          # Persistent storage
+│   └── styles/
+├── src-tauri/                  # Rust backend
 │   ├── src/
-│   │   ├── main.rs               # App entry point
-│   │   ├── lib.rs                # Tauri builder setup
-│   │   ├── clipboard.rs          # Clipboard monitor + sync loops
-│   │   ├── sync.rs               # HTTP client for server API
-│   │   ├── commands.rs           # IPC commands (frontend ↔ backend)
-│   │   └── state.rs              # Shared app state
-│   ├── capabilities/
-│   │   └── default.json          # Tauri v2 permissions
-│   ├── Cargo.toml
+│   │   ├── clipboard.rs        # Clipboard monitor + sync
+│   │   ├── sync.rs             # Server API client
+│   │   ├── crypto.rs           # AES-256-GCM encryption
+│   │   ├── commands.rs         # Tauri IPC commands
+│   │   └── state.rs            # Shared app state
 │   └── tauri.conf.json
-├── package.json
-├── vite.config.ts
-└── tsconfig.json
+└── .github/workflows/
+    └── build.yml               # CI/CD for all platforms
 ```
 
-## How Sync Works
+## Server
 
-```
-┌─────────────┐    POST /api/clip     ┌──────────────┐
-│  Device A   │ ─────────────────────▶│              │
-│  (copies)   │                       │   Server     │
-└─────────────┘                       │  (Vercel +   │
-                                      │   MongoDB)   │
-┌─────────────┐    GET /clip/latest   │              │
-│  Device B   │ ◀─────────────────────│              │
-│  (pastes)   │    (polls every 1.5s) └──────────────┘
-└─────────────┘
-```
+The sync server is deployed separately: [clipboard_sync_server](https://github.com/Tolaj/clipboard_sync_server)
 
-- **Outbound:** Rust monitors clipboard every 500ms. On change → hashes content → POSTs to server
-- **Inbound:** Polls server every 1.5s. New clip found → writes to local clipboard
-- **Dedup:** SHA-256 hash prevents duplicates. A `self_write_in_progress` flag prevents infinite echo loops
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes (`git commit -m 'Add my feature'`)
-4. Push to the branch (`git push origin feature/my-feature`)
-5. Open a Pull Request
+A public server is available at `https://clipboard-sync-server.vercel.app` — selected by default in the app.
 
 ## License
 
-ISC
+MIT
