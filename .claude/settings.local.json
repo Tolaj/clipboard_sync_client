@@ -48,7 +48,9 @@
       "Bash(sudo chown swapnil:staff /Users/swapnil/.config/gh)",
       "Bash(git stash *)",
       "Bash(git rebase *)",
-      "Bash(cargo clean *)"
+      "Bash(cargo clean *)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget"
     ]
   }
 }
