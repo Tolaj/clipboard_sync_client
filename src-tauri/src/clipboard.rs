@@ -6,12 +6,13 @@ use std::sync::Arc;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri::image::Image as TauriImage;
 use tauri_plugin_clipboard_manager::ClipboardExt;
+use tauri_plugin_store::StoreExt;
 use tokio::time::{sleep, Duration};
 use tokio_util::sync::CancellationToken;
 
+use crate::crypto;
 use crate::state::AppState;
 use crate::sync::SyncClient;
-use tauri_plugin_store::StoreExt;
 
 fn hash_content(content: &str) -> String {
     let mut hasher = Sha256::new();
@@ -35,6 +36,30 @@ fn png_to_rgba(png_data: &[u8]) -> Result<(Vec<u8>, u32, u32), String> {
     let width = rgba.width();
     let height = rgba.height();
     Ok((rgba.into_raw(), width, height))
+}
+
+fn get_encryption_key(app: &AppHandle) -> Option<String> {
+    app.store("settings.json")
+        .ok()
+        .and_then(|s| s.get("encryptionKey"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()))
+}
+
+fn encrypt_content(content: &str, key: &Option<String>) -> Result<String, String> {
+    match key {
+        Some(k) => crypto::encrypt(content.as_bytes(), k),
+        None => Ok(content.to_string()),
+    }
+}
+
+fn decrypt_content(content: &str, key: &Option<String>) -> Result<String, String> {
+    match key {
+        Some(k) => {
+            let bytes = crypto::decrypt(content, k)?;
+            String::from_utf8(bytes).map_err(|e| e.to_string())
+        }
+        None => Ok(content.to_string()),
+    }
 }
 
 pub fn start_sync(app: &AppHandle) {
@@ -96,6 +121,7 @@ pub fn start_sync(app: &AppHandle) {
 
 async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String> {
     let state = app.state::<AppState>();
+    let enc_key = get_encryption_key(app);
 
     let is_self_write = *state.self_write_in_progress.lock().unwrap();
     if is_self_write {
@@ -108,7 +134,8 @@ async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), Strin
             let hash = hash_content(&text);
             let last_hash = state.last_clip_hash.lock().unwrap().clone();
             if hash != last_hash {
-                match client.push_clip(&text, "text").await {
+                let encrypted = encrypt_content(&text, &enc_key)?;
+                match client.push_clip(&encrypted, "text").await {
                     Ok(res) => {
                         *state.last_clip_hash.lock().unwrap() = hash;
                         if let Some(created_at) = &res.created_at {
@@ -127,7 +154,7 @@ async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), Strin
                             };
                             let _ = app.emit("clip-sent", &clip);
                         }
-                        println!("Outbound: pushed text clip ({})", res.status);
+                        println!("Outbound: pushed encrypted text clip ({})", res.status);
                     }
                     Err(e) => eprintln!("Outbound push failed: {}", e),
                 }
@@ -163,8 +190,9 @@ async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), Strin
 
         let png_data = rgba_to_png(&rgba, width, height)?;
         let b64 = BASE64.encode(&png_data);
+        let encrypted = encrypt_content(&b64, &enc_key)?;
 
-        match client.push_clip(&b64, "image").await {
+        match client.push_clip(&encrypted, "image").await {
             Ok(res) => {
                 *state.last_clip_hash.lock().unwrap() = hash;
                 if let Some(created_at) = &res.created_at {
@@ -183,7 +211,7 @@ async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), Strin
                     };
                     let _ = app.emit("clip-sent", &clip);
                 }
-                println!("Outbound: pushed image clip ({})", res.status);
+                println!("Outbound: pushed encrypted image clip ({})", res.status);
             }
             Err(e) => eprintln!("Outbound image push failed: {}", e),
         }
@@ -194,6 +222,7 @@ async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), Strin
 
 async fn inbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String> {
     let state = app.state::<AppState>();
+    let enc_key = get_encryption_key(app);
 
     let after = {
         let t = state.last_sync_time.lock().unwrap().clone();
@@ -212,12 +241,14 @@ async fn inbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String
         return Ok(());
     }
 
+    let decrypted_content = decrypt_content(&clip.content, &enc_key)?;
+
     {
         *state.self_write_in_progress.lock().unwrap() = true;
     }
 
     if clip.content_type == "image" {
-        let png_data = BASE64.decode(&clip.content).map_err(|e| e.to_string())?;
+        let png_data = BASE64.decode(&decrypted_content).map_err(|e| e.to_string())?;
         let (rgba, width, height) = png_to_rgba(&png_data)?;
         let img = TauriImage::new_owned(rgba, width, height);
         app.clipboard()
@@ -225,7 +256,7 @@ async fn inbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String
             .map_err(|e| e.to_string())?;
     } else {
         app.clipboard()
-            .write_text(&clip.content)
+            .write_text(&decrypted_content)
             .map_err(|e| e.to_string())?;
     }
 
@@ -235,9 +266,15 @@ async fn inbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String
         *state.self_write_in_progress.lock().unwrap() = false;
     }
 
-    let _ = app.emit("clip-received", &clip);
+    let _ = app.emit("clip-received", &crate::sync::ClipData {
+        _id: clip._id,
+        content: decrypted_content,
+        content_type: clip.content_type.clone(),
+        source_device: clip.source_device.clone(),
+        created_at: clip.created_at.clone(),
+    });
     println!(
-        "Inbound: received {} clip from {}",
+        "Inbound: received encrypted {} clip from {}",
         clip.content_type,
         clip.source_device
             .as_ref()

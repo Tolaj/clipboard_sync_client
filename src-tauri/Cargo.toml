@@ -27,6 +27,8 @@ hex = "0.4"
 tokio-util = "0.7"
 image = { version = "0.25", default-features = false, features = ["png"] }
 base64 = "0.22"
+aes-gcm = "0.10"
+rand = "0.8"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

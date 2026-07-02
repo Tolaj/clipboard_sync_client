@@ -5,6 +5,7 @@ import PairingScreen from "./components/PairingScreen";
 import ClipboardHistory from "./components/ClipboardHistory";
 import DeviceList from "./components/DeviceList";
 import Settings from "./components/Settings";
+import AppLogo from "./components/AppLogo";
 
 type Tab = "history" | "devices" | "settings";
 
@@ -67,7 +68,10 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Clipboard Sync</h1>
+        <div className="header-title">
+          <AppLogo size={28} />
+          <h1>Clipboard Sync</h1>
+        </div>
         {pairingCode && (
           <div className="pairing-badge">
             Code: <strong>{pairingCode}</strong>

@@ -7,12 +7,15 @@ async function getStore() {
   return store;
 }
 
-export async function saveCredentials(serverUrl: string, deviceToken: string, groupId: string, deviceId: string) {
+export async function saveCredentials(serverUrl: string, deviceToken: string, groupId: string, deviceId: string, encryptionKey?: string) {
   const s = await getStore();
   await s.set("serverUrl", serverUrl);
   await s.set("deviceToken", deviceToken);
   await s.set("groupId", groupId);
   await s.set("deviceId", deviceId);
+  if (encryptionKey) {
+    await s.set("encryptionKey", encryptionKey);
+  }
 }
 
 export async function getCredentials() {
@@ -30,4 +33,5 @@ export async function clearCredentials() {
   await s.delete("deviceToken");
   await s.delete("groupId");
   await s.delete("deviceId");
+  await s.delete("encryptionKey");
 }

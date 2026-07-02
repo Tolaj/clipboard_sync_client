@@ -1,5 +1,6 @@
 mod clipboard;
 mod commands;
+pub mod crypto;
 mod state;
 mod sync;
 
@@ -20,6 +21,7 @@ pub fn run() {
             commands::pair_device,
             commands::get_sync_status,
             commands::start_clipboard_sync,
+            commands::generate_encryption_key,
         ])
         .setup(|app| {
             let _ = app.get_webview_window("main");

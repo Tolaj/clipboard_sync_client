@@ -142,3 +142,8 @@ pub async fn start_clipboard_sync(
     crate::clipboard::start_sync(&app);
     Ok(())
 }
+
+#[tauri::command]
+pub fn generate_encryption_key() -> String {
+    crate::crypto::generate_key()
+}
