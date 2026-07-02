@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicepage/nicepage-go/refs/heads/main/nicepage/data/tauri.conf.schema.json",
+  "productName": "Clipboard Sync",
+  "version": "1.0.0",
+  "identifier": "com.clipboardsync.desktop",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev:vite",
+    "beforeBuildCommand": "npm run build:web"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "title": "Clipboard Sync",
+        "width": 420,
+        "height": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ]
+  }
+}
