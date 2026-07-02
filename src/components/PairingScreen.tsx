@@ -22,6 +22,7 @@ function PairingScreen({ onPaired }: Props) {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   function selectPreset(url: string) {
     setUseCustomServer(false);
@@ -87,23 +88,30 @@ function PairingScreen({ onPaired }: Props) {
     }
   }
 
-  async function copyCode() {
-    if (generatedCode) {
-      const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
-      await writeText(generatedCode);
-    }
-  }
-
   if (generatedCode) {
+    const shortCode = generatedCode.split("-")[0];
+
+    async function copyFullCode() {
+      if (generatedCode) {
+        const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+        await writeText(generatedCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    }
+
     return (
       <div className="pairing-screen">
         <AppLogo size={64} />
         <h1>Group Created!</h1>
         <p>Share this code with your other devices:</p>
-        <div className="pairing-code" style={{ fontSize: "1rem", letterSpacing: "0.1rem", cursor: "pointer" }} onClick={copyCode} title="Click to copy">
-          {generatedCode}
+        <div className="pairing-code" style={{ fontSize: "2rem", letterSpacing: "0.3rem" }}>
+          {shortCode}
         </div>
-        <p className="help-text">This code contains your encryption key. Keep it private.</p>
+        <button onClick={copyFullCode} style={{ marginTop: 12 }}>
+          {copied ? "Copied!" : "Copy Full Code"}
+        </button>
+        <p className="help-text">The full code includes your encryption key. Share it securely.</p>
         <button onClick={() => onPaired(generatedCode)}>Continue</button>
       </div>
     );

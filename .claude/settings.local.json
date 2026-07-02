@@ -66,7 +66,8 @@
       "Bash(magick icon.png -format \"Top-left: %[pixel:p{0,0}]\\\\nCenter: %[pixel:p{256,256}]\\\\nCorner 5px: %[pixel:p{5,5}]\\\\nEdge mid: %[pixel:p{256,0}]\\\\n\" info:)",
       "Bash(rsvg-convert -w 1024 -h 1024 icon.svg -o /tmp/test_icon_1024.png)",
       "Bash(magick /tmp/test_icon_1024.png -format \"Top-left: %[pixel:p{0,0}]\\\\nTop-edge: %[pixel:p{512,0}]\\\\nCenter: %[pixel:p{512,512}]\\\\nSize: %wx%h\\\\n\" info:)",
-      "Bash(gh run *)"
+      "Bash(gh run *)",
+      "Bash(cargo check *)"
     ]
   }
 }

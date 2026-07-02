@@ -182,14 +182,14 @@ async fn outbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), Strin
             return Ok(());
         }
 
-        let hash = hash_content(&format!("img:{}:{}:{}", width, height, hash_content(&String::from_utf8_lossy(&rgba))));
+        let png_data = rgba_to_png(&rgba, width, height)?;
+        let b64 = BASE64.encode(&png_data);
+        let hash = hash_content(&b64);
         let last_hash = state.last_clip_hash.lock().unwrap().clone();
         if hash == last_hash {
             return Ok(());
         }
 
-        let png_data = rgba_to_png(&rgba, width, height)?;
-        let b64 = BASE64.encode(&png_data);
         let encrypted = encrypt_content(&b64, &enc_key)?;
 
         match client.push_clip(&encrypted, "image").await {
@@ -235,13 +235,15 @@ async fn inbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String
         return Ok(());
     };
 
-    let clip_hash = hash_content(&clip.content);
+    let decrypted_content = decrypt_content(&clip.content, &enc_key)?;
+
+    // Hash the DECRYPTED content so it matches what outbound_tick hashes
+    let content_hash = hash_content(&decrypted_content);
     let last_hash = state.last_clip_hash.lock().unwrap().clone();
-    if clip_hash == last_hash {
+    if content_hash == last_hash {
+        *state.last_sync_time.lock().unwrap() = clip.created_at.clone();
         return Ok(());
     }
-
-    let decrypted_content = decrypt_content(&clip.content, &enc_key)?;
 
     {
         *state.self_write_in_progress.lock().unwrap() = true;
@@ -261,10 +263,17 @@ async fn inbound_tick(app: &AppHandle, client: &SyncClient) -> Result<(), String
     }
 
     {
-        *state.last_clip_hash.lock().unwrap() = clip_hash;
+        *state.last_clip_hash.lock().unwrap() = content_hash;
         *state.last_sync_time.lock().unwrap() = clip.created_at.clone();
-        *state.self_write_in_progress.lock().unwrap() = false;
     }
+
+    // Keep self_write flag set briefly so outbound doesn't race
+    let app_clone = app.clone();
+    tokio::spawn(async move {
+        sleep(Duration::from_millis(500)).await;
+        let state = app_clone.state::<AppState>();
+        *state.self_write_in_progress.lock().unwrap() = false;
+    });
 
     let _ = app.emit("clip-received", &crate::sync::ClipData {
         _id: clip._id,
