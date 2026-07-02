@@ -42,7 +42,15 @@ function ClipboardHistory() {
 
   async function copyToClipboard(clip: Clip) {
     try {
-      await writeText(clip.content);
+      if (clip.contentType === "image") {
+        const { writeImage } = await import("@tauri-apps/plugin-clipboard-manager");
+        const binary = atob(clip.content);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        await writeImage(bytes);
+      } else {
+        await writeText(clip.content);
+      }
       setCopiedId(clip._id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
@@ -64,11 +72,17 @@ function ClipboardHistory() {
           className="clip-item"
           onClick={() => copyToClipboard(clip)}
         >
-          <div className="clip-content">
-            {clip.content.length > 200 ? clip.content.slice(0, 200) + "..." : clip.content}
-          </div>
+          {clip.contentType === "image" ? (
+            <div className="clip-image">
+              <img src={`data:image/png;base64,${clip.content}`} alt="Clipboard image" />
+            </div>
+          ) : (
+            <div className="clip-content">
+              {clip.content.length > 200 ? clip.content.slice(0, 200) + "..." : clip.content}
+            </div>
+          )}
           <div className="clip-meta">
-            <span>{clip.sourceDevice?.name || "Unknown device"}</span>
+            <span>{clip.contentType === "image" ? "Image" : ""} {clip.sourceDevice?.name || "Unknown device"}</span>
             <span>{formatTime(clip.createdAt)}</span>
             {copiedId === clip._id && <span className="copied-badge">Copied!</span>}
           </div>

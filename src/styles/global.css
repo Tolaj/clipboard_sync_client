@@ -77,7 +77,7 @@ body {
   margin-bottom: 0.3rem;
 }
 
-input {
+input:not([type="checkbox"]) {
   width: 100%;
   padding: 0.7rem 1rem;
   background: var(--surface);
@@ -88,7 +88,7 @@ input {
   outline: none;
 }
 
-input:focus {
+input:not([type="checkbox"]):focus {
   border-color: var(--accent);
 }
 
@@ -234,6 +234,21 @@ button.link {
   overflow: hidden;
 }
 
+.clip-image {
+  max-height: 150px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.clip-image img {
+  width: 100%;
+  height: auto;
+  max-height: 150px;
+  object-fit: cover;
+  display: block;
+  border-radius: 6px;
+}
+
 .clip-meta {
   display: flex;
   gap: 0.8rem;
@@ -335,6 +350,35 @@ button.link {
   word-break: break-all;
 }
 
+.server-options {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.server-preset-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.server-preset-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.server-preset-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
 .input-row {
   display: flex;
   gap: 0.5rem;
@@ -347,6 +391,36 @@ button.link {
 .input-row button {
   width: auto;
   white-space: nowrap;
+}
+
+.config-options {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0.4rem;
+}
+
+.config-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.config-checkbox.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.config-checkbox input[type="checkbox"] {
+  width: 16px !important;
+  min-width: 16px;
+  height: 16px;
+  margin: 0 8px 0 0;
+  padding: 0;
+  accent-color: var(--accent);
+  cursor: inherit;
 }
 
 .danger-zone {

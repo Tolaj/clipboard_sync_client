@@ -502,7 +502,9 @@ dependencies = [
 name = "clipboard-sync"
 version = "1.0.0"
 dependencies = [
+ "base64 0.22.1",
  "hex",
+ "image",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
@@ -515,6 +517,7 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-store",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

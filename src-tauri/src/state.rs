@@ -1,4 +1,5 @@
 use std::sync::Mutex;
+use tokio_util::sync::CancellationToken;
 
 pub struct AppState {
     pub device_token: Mutex<Option<String>>,
@@ -8,6 +9,7 @@ pub struct AppState {
     pub last_sync_time: Mutex<String>,
     pub self_write_in_progress: Mutex<bool>,
     pub sync_running: Mutex<bool>,
+    pub cancel_token: Mutex<CancellationToken>,
 }
 
 impl AppState {
@@ -20,6 +22,7 @@ impl AppState {
             last_sync_time: Mutex::new(String::new()),
             self_write_in_progress: Mutex::new(false),
             sync_running: Mutex::new(false),
+            cancel_token: Mutex::new(CancellationToken::new()),
         }
     }
 }

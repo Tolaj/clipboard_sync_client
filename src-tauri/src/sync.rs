@@ -55,14 +55,14 @@ impl SyncClient {
         }
     }
 
-    pub async fn push_clip(&self, content: &str) -> Result<PushClipResponse, String> {
+    pub async fn push_clip(&self, content: &str, content_type: &str) -> Result<PushClipResponse, String> {
         let res = self
             .client
             .post(format!("{}/api/clip", self.server_url))
             .header("Authorization", format!("Bearer {}", self.token))
             .json(&PushClipBody {
                 content: content.to_string(),
-                content_type: "text".to_string(),
+                content_type: content_type.to_string(),
             })
             .send()
             .await
